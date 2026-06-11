@@ -4,6 +4,7 @@ import com.assetflow.backend.dto.asset.AssetCreateRequest;
 import com.assetflow.backend.dto.asset.AssetResponse;
 import com.assetflow.backend.dto.asset.AssetUpdateRequest;
 import com.assetflow.backend.service.AssetService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class AssetController {
     }
 
     @PostMapping
-    public ResponseEntity<AssetResponse> create(@RequestBody AssetCreateRequest request) {
+    public ResponseEntity<AssetResponse> create(@Valid @RequestBody AssetCreateRequest request) {
         AssetResponse response = assetService.createAsset(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -34,15 +35,14 @@ public class AssetController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AssetResponse> getById(@PathVariable Long id) {
-        return assetService.getAssetById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        AssetResponse response = assetService.getAssetById(id);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AssetResponse> updateAsset(
             @PathVariable Long id,
-            @RequestBody AssetUpdateRequest request) {
+            @Valid @RequestBody AssetUpdateRequest request) {
 
         AssetResponse response = assetService.updateAsset(id, request);
         return ResponseEntity.ok(response);

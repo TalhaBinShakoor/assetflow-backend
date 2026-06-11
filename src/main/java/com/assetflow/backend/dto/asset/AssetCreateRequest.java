@@ -1,27 +1,23 @@
 package com.assetflow.backend.dto.asset;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 public class AssetCreateRequest {
 
-    @NotBlank
+    @NotBlank(message = "Name is required")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "Category is required")
     private String category;
 
-    @NotBlank
+    @NotBlank(message = "Status is required")
     private String status;
 
-    @NotNull
+    @NotNull(message = "Purchase date is required")
     private LocalDate purchaseDate;
 }

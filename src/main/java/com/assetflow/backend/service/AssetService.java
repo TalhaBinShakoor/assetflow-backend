@@ -7,8 +7,9 @@ import com.assetflow.backend.model.Asset;
 import com.assetflow.backend.repository.AssetRepository;
 import org.springframework.stereotype.Service;
 
+import com.assetflow.backend.exception.AssetNotFoundException;
+
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AssetService {
@@ -37,21 +38,19 @@ public class AssetService {
                 .toList();
     }
 
-    public Optional<AssetResponse> getAssetById(Long id) {
+    public AssetResponse getAssetById(Long id) {
 
-        return assetRepository.findById(id)
-                .map(asset -> {
+        Asset asset = assetRepository.findById(id)
+                .orElseThrow(() -> new AssetNotFoundException(id));
 
-                    AssetResponse response = new AssetResponse();
+        AssetResponse response = new AssetResponse();
+        response.setId(asset.getId());
+        response.setName(asset.getName());
+        response.setCategory(asset.getCategory());
+        response.setStatus(asset.getStatus());
+        response.setPurchaseDate(asset.getPurchaseDate());
 
-                    response.setId(asset.getId());
-                    response.setName(asset.getName());
-                    response.setCategory(asset.getCategory());
-                    response.setStatus(asset.getStatus());
-                    response.setPurchaseDate(asset.getPurchaseDate());
-
-                    return response;
-                });
+        return response;
     }
 
     public AssetResponse createAsset(AssetCreateRequest request) {
@@ -79,7 +78,7 @@ public class AssetService {
     public AssetResponse updateAsset(Long id, AssetUpdateRequest request) {
 
         Asset existing = assetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
+                .orElseThrow(() -> new AssetNotFoundException(id));
 
         existing.setName(request.getName());
         existing.setCategory(request.getCategory());
@@ -100,7 +99,7 @@ public class AssetService {
 
     public void deleteAsset(Long id) {
         Asset existing = assetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
+                .orElseThrow(() -> new AssetNotFoundException(id));
 
         assetRepository.delete(existing);
     }

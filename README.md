@@ -11,14 +11,15 @@ This project is part of my full-stack portfolio built with:
 - Docker
 - Maven
 
-## Features
+## Features (Completed)
 
 - REST API
-- PostgreSQL database
+- Layered architecture (Controller → Service → Repository)
+- PostgreSQL database integration
+- JPA/Hibernate entity mapping
+- Full CRUD operations for Asset module
 - Dockerized development environment
 - Spring Data JPA
-- Layered architecture
-- Git version control
 
 ## Tech Stack
 
@@ -69,21 +70,49 @@ AssetFlow backend is running
 
 ---
 
-## Roadmap
+## API Details:
 
-- [x] Spring Boot setup
-- [x] PostgreSQL
-- [x] Docker
-- [x] Health endpoint
-- [ ] Asset CRUD
-- [ ] Authentication
-- [ ] Users
-- [ ] Asset Assignment
-- [ ] File Upload
-- [ ] Swagger
-- [ ] Unit Tests
+### Base URL
+
+/api/assets
+
 
 ---
+
+### Get all assets
+
+GET /api/assets
+
+
+---
+
+### Get asset by ID
+
+GET /api/assets/{id}
+
+
+---
+
+### Create asset
+
+POST /api/assets
+
+Request body:
+```json
+{
+  "name": "Laptop",
+  "category": "Electronics",
+  "status": "IN_USE",
+  "purchaseDate": "2026-06-07"
+}
+```
+
+### Update asset
+PUT /api/assets/{id}
+
+### Delete asset
+DELETE /api/assets/{id}
+
 
 ## Author
 

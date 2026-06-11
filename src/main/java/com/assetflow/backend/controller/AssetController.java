@@ -1,7 +1,10 @@
 package com.assetflow.backend.controller;
 
-import com.assetflow.backend.model.Asset;
+import com.assetflow.backend.dto.asset.AssetCreateRequest;
+import com.assetflow.backend.dto.asset.AssetResponse;
+import com.assetflow.backend.dto.asset.AssetUpdateRequest;
 import com.assetflow.backend.service.AssetService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,29 +21,36 @@ public class AssetController {
     }
 
     @PostMapping
-    public Asset create(@RequestBody Asset asset) {
-        return assetService.createAsset(asset);
+    public ResponseEntity<AssetResponse> create(@RequestBody AssetCreateRequest request) {
+        AssetResponse response = assetService.createAsset(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<Asset> getAll() {
-        return assetService.getAllAssets();
+    public ResponseEntity<List<AssetResponse>> getAll() {
+        List<AssetResponse> assets = assetService.getAllAssets();
+        return ResponseEntity.ok(assets);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Asset> getById(@PathVariable Long id) {
+    public ResponseEntity<AssetResponse> getById(@PathVariable Long id) {
         return assetService.getAssetById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public Asset updateAsset(@PathVariable Long id, @RequestBody Asset asset) {
-        return assetService.updateAsset(id, asset);
+    public ResponseEntity<AssetResponse> updateAsset(
+            @PathVariable Long id,
+            @RequestBody AssetUpdateRequest request) {
+
+        AssetResponse response = assetService.updateAsset(id, request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteAsset(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         assetService.deleteAsset(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: assetflow-db
+    environment:
+      POSTGRES_USER: assetflow
+      POSTGRES_PASSWORD: assetflow
+      POSTGRES_DB: assetflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

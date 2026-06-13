@@ -26,4 +26,8 @@ public class Asset {
     private String status;
 
     private LocalDate purchaseDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

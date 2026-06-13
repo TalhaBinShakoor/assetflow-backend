@@ -22,11 +22,16 @@ This project is part of my full-stack portfolio built with:
 
 ### Authentication
 
-- User registration
-- User login
+- User registration and login
 - BCrypt password hashing
-- JWT authentication
+- JWT-based stateless authentication
 - Protected REST endpoints
+
+### Multi-tenant security
+
+- User-based data isolation (multi-tenant security)
+- Each user can only access their own assets
+- Ownership enforced at service layer using JWT context
 
 ### Database
 
@@ -156,8 +161,10 @@ AssetFlow backend is running
 ## Asset API
 
 All Asset endpoints require a valid JWT token.
-
 Authorization: Bearer <JWT_TOKEN>
+
+All asset operations are scoped to the authenticated user.
+Users can only access, update, or delete their own assets.
 
 
 ### Get all assets

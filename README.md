@@ -29,9 +29,10 @@ This project is part of my full-stack portfolio built with:
 
 ### Multi-tenant security
 
-- User-based data isolation (multi-tenant security)
-- Each user can only access their own assets
+- USER role can only access their own assets
+- ADMIN role can access all assets
 - Ownership enforced at service layer using JWT context
+- Role-based authorization (USER vs ADMIN)
 
 ### Database
 
@@ -68,6 +69,14 @@ Authorization: Bearer <JWT_TOKEN>
 - Protected API endpoints
 - Public endpoints: `/auth/**`, `/health`
 
+### Role-based Access Control (RBAC)
+
+This project supports two roles:
+
+- USER → can manage only their own assets
+- ADMIN → can view and manage all assets in the system
+
+Access control is enforced using Spring Security, JWT, and service-layer authorization checks.
 
 ## Authentication APIs
 
@@ -166,6 +175,15 @@ Authorization: Bearer <JWT_TOKEN>
 All asset operations are scoped to the authenticated user.
 Users can only access, update, or delete their own assets.
 
+
+### Admin APIs
+
+GET /api/admin/assets
+
+- Requires ADMIN role
+- Returns all assets in the system
+
+---
 
 ### Get all assets
 

@@ -41,25 +41,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (username != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
 
+            String role = jwtService.extractRole(token);
+
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
                             username,
                             null,
-                            Collections.emptyList()
+                            java.util.List.of(
+                                    new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role)
+                            )
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private String extractUsername(String token) {
-        // TEMP SIMPLE VERSION (we improve in next step)
-        return io.jsonwebtoken.Jwts.parser()
-                .setSigningKey("mysecretkeymysecretkeymysecretkeymysecretkey".getBytes())
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
     }
 }

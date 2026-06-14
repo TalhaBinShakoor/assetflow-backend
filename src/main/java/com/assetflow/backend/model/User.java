@@ -23,7 +23,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String role; // e.g. USER, ADMIN
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Asset> assets = new ArrayList<>();

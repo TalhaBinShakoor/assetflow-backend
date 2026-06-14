@@ -2,6 +2,7 @@ package com.assetflow.backend.service;
 
 import com.assetflow.backend.dto.auth.LoginRequest;
 import com.assetflow.backend.dto.auth.RegisterRequest;
+import com.assetflow.backend.model.Role;
 import com.assetflow.backend.model.User;
 import com.assetflow.backend.repository.UserRepository;
 import com.assetflow.backend.security.JwtService;
@@ -27,6 +28,7 @@ public class AuthService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(Role.USER);
 
         // 2. Save to DB
         userRepository.save(user);
@@ -46,6 +48,6 @@ public class AuthService {
             throw new RuntimeException("Invalid username or password");
         }
 
-        return jwtService.generateToken(user.getUsername());
+        return jwtService.generateToken(user);
     }
 }

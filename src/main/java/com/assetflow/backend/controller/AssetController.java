@@ -29,7 +29,7 @@ public class AssetController {
 
     @GetMapping
     public ResponseEntity<List<AssetResponse>> getAll() {
-        List<AssetResponse> assets = assetService.getAllAssets();
+        List<AssetResponse> assets = assetService.getAssetsForUser();
         return ResponseEntity.ok(assets);
     }
 

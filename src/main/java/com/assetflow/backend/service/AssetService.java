@@ -26,9 +26,15 @@ public class AssetService {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
-        String username = authentication.getName();
-        System.out.println("Logged in user: " + username);
         return authentication.getName();
+    }
+
+    private User getCurrentUser() {
+
+        String username = getCurrentUsername();
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public AssetService(AssetRepository assetRepository, UserRepository userRepository) {
@@ -36,12 +42,9 @@ public class AssetService {
         this.userRepository = userRepository;
     }
 
-    public List<AssetResponse> getAllAssets() {
+    public List<AssetResponse> getAssetsForUser() {
 
-        String username = getCurrentUsername();
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = getCurrentUser();
 
         return assetRepository.findByUser(user)
                 .stream()
@@ -49,15 +52,22 @@ public class AssetService {
                 .toList();
     }
 
+    public List<AssetResponse> getAllAssetsForAdmin() {
+
+        return assetRepository.findAll()
+                .stream()
+                .map(AssetMapper::toResponse)
+                .toList();
+    }
+
     public AssetResponse getAssetById(Long id) {
 
-        String username = getCurrentUsername();
+        User user = getCurrentUser();
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        boolean isAdmin = user.getRole().name().equals("ADMIN");
 
         Asset asset = assetRepository.findById(id)
-                .filter(a -> a.getUser().getId().equals(user.getId()))
+                .filter(a -> isAdmin || a.getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new AssetNotFoundException(id));
 
         return AssetMapper.toResponse(asset);
@@ -65,14 +75,9 @@ public class AssetService {
 
     public AssetResponse createAsset(AssetCreateRequest request) {
 
-        String username = getCurrentUsername();
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        User user = getCurrentUser();
 
         Asset asset = AssetMapper.toEntity(request);
-
-        // 🔥 THIS is the important line (now asset belongs to logged-in user)
         asset.setUser(user);
 
         Asset savedAsset = assetRepository.save(asset);
@@ -82,13 +87,12 @@ public class AssetService {
 
     public AssetResponse updateAsset(Long id, AssetUpdateRequest request) {
 
-        String username = getCurrentUsername();
+        User user = getCurrentUser();
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        boolean isAdmin = user.getRole().name().equals("ADMIN");
 
         Asset existing = assetRepository.findById(id)
-                .filter(a -> a.getUser().getId().equals(user.getId()))
+                .filter(a -> isAdmin || a.getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new AssetNotFoundException(id));
 
         AssetMapper.updateEntity(existing, request);
@@ -100,13 +104,12 @@ public class AssetService {
 
     public void deleteAsset(Long id) {
 
-        String username = getCurrentUsername();
+        User user = getCurrentUser();
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        boolean isAdmin = user.getRole().name().equals("ADMIN");
 
         Asset existing = assetRepository.findById(id)
-                .filter(a -> a.getUser().getId().equals(user.getId()))
+                .filter(a -> isAdmin || a.getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new AssetNotFoundException(id));
 
         assetRepository.delete(existing);

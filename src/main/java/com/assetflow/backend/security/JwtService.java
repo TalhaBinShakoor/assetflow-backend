@@ -6,6 +6,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
+import com.assetflow.backend.model.User;
+import java.util.HashMap;
+import java.util.Map;
+
 import java.security.Key;
 import java.util.Date;
 
@@ -16,23 +20,32 @@ public class JwtService {
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    // 1. Generate Token
-    public String generateToken(String username) {
+    // Generate Token
+    public String generateToken(User user) {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", user.getRole().name());
 
         return Jwts.builder()
-                .setSubject(username)
+                .setClaims(claims)
+                .setSubject(user.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 2. Extract username (IMPORTANT)
+    // Extract username
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
 
-    // 3. Validate token
+    // Extract role
+    public String extractRole(String token) {
+        return extractAllClaims(token).get("role", String.class);
+    }
+
+    // Validate token
     public boolean isTokenValid(String token, String username) {
         return extractUsername(token).equals(username)
                 && !isTokenExpired(token);

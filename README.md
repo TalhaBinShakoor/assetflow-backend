@@ -125,6 +125,7 @@ Response:
 - Docker
 - Maven
 - Lombok
+- SpringDoc OpenAPI (Swagger)
 - IntelliJ IDEA
 
 ## Getting Started
@@ -224,6 +225,36 @@ PUT /api/assets/{id}
 DELETE /api/assets/{id}
 
 ---
+
+
+## Swagger UI is available at:
+
+```json
+http://localhost:8080/swagger-ui/index.html
+```
+
+### Features:
+
+- Interactive API documentation 
+- JWT authentication support using the Authorize button 
+- Request/response testing directly from the browser
+
+### API Error Handling
+
+The API uses standardized error responses for validation errors, missing resources, and malformed requests.
+
+### Example:
+
+```json
+{
+"timestamp": "2026-06-15T21:00:00",
+"status": 404,
+"error": "Not Found",
+"message": "Asset not found with id: 123",
+"errors": null
+}
+```
+
 
 ## Author
 

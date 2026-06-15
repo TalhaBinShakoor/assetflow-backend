@@ -1,5 +1,6 @@
 package com.assetflow.backend.service;
 
+import com.assetflow.backend.exception.UserNotFoundException;
 import com.assetflow.backend.dto.asset.AssetCreateRequest;
 import com.assetflow.backend.dto.asset.AssetResponse;
 import com.assetflow.backend.dto.asset.AssetUpdateRequest;
@@ -11,6 +12,7 @@ import com.assetflow.backend.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
 
 import com.assetflow.backend.exception.AssetNotFoundException;
 
@@ -34,7 +36,16 @@ public class AssetService {
         String username = getCurrentUsername();
 
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(username));
+    }
+
+    private Asset getAccessibleAsset(Long id, User user) {
+
+        boolean isAdmin = user.getRole().name().equals("ADMIN");
+
+        return assetRepository.findById(id)
+                .filter(asset -> isAdmin || asset.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new AssetNotFoundException(id));
     }
 
     public AssetService(AssetRepository assetRepository, UserRepository userRepository) {
@@ -64,11 +75,7 @@ public class AssetService {
 
         User user = getCurrentUser();
 
-        boolean isAdmin = user.getRole().name().equals("ADMIN");
-
-        Asset asset = assetRepository.findById(id)
-                .filter(a -> isAdmin || a.getUser().getId().equals(user.getId()))
-                .orElseThrow(() -> new AssetNotFoundException(id));
+        Asset asset = getAccessibleAsset(id, user);
 
         return AssetMapper.toResponse(asset);
     }
@@ -89,11 +96,7 @@ public class AssetService {
 
         User user = getCurrentUser();
 
-        boolean isAdmin = user.getRole().name().equals("ADMIN");
-
-        Asset existing = assetRepository.findById(id)
-                .filter(a -> isAdmin || a.getUser().getId().equals(user.getId()))
-                .orElseThrow(() -> new AssetNotFoundException(id));
+        Asset existing = getAccessibleAsset(id, user);
 
         AssetMapper.updateEntity(existing, request);
 
@@ -106,11 +109,7 @@ public class AssetService {
 
         User user = getCurrentUser();
 
-        boolean isAdmin = user.getRole().name().equals("ADMIN");
-
-        Asset existing = assetRepository.findById(id)
-                .filter(a -> isAdmin || a.getUser().getId().equals(user.getId()))
-                .orElseThrow(() -> new AssetNotFoundException(id));
+        Asset existing = getAccessibleAsset(id, user);
 
         assetRepository.delete(existing);
     }

@@ -1,14 +1,17 @@
 package com.assetflow.backend.handler;
 
+import com.assetflow.backend.dto.error.ApiErrorResponse;
 import com.assetflow.backend.exception.AssetNotFoundException;
+import com.assetflow.backend.exception.UserNotFoundException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.validation.FieldError;
-
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,13 +19,16 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AssetNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleAssetNotFound(
+    public ResponseEntity<ApiErrorResponse> handleAssetNotFound(
             AssetNotFoundException ex) {
 
-        Map<String, Object> body = Map.of(
-                "status", 404,
-                "message", ex.getMessage()
-        );
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Not Found")
+                .message(ex.getMessage())
+                .errors(null)
+                .build();
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -30,7 +36,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(
+    public ResponseEntity<ApiErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
@@ -39,13 +45,43 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage());
         }
 
-        Map<String, Object> body = Map.of(
-                "status", 400,
-                "message", "Validation failed",
-                "errors", errors
-        );
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message("Validation failed")
+                .errors(errors)
+                .build();
 
         return ResponseEntity.badRequest().body(body);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidJson(
+            HttpMessageNotReadableException ex) {
+
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message("Invalid request body or invalid field format")
+                .errors(null)
+                .build();
+
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Not Found")
+                .message(ex.getMessage())
+                .errors(null)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
 }

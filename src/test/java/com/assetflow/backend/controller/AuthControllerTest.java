@@ -13,16 +13,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-
-
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -40,87 +35,105 @@ class AuthControllerTest {
 
     @Test
     void registerWithBlankUsernameReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "username": "",
-                                  "password": "secret123"
-                                }
-                                """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").value("Validation failed"))
-                .andExpect(jsonPath("$.errors.username").value("Username is required"));
+        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "",
+                  "password": "secret123"
+                }
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.username").value("Username is required"));
     }
 
     @Test
     void loginWithBlankPasswordReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "username": "talha",
-                                  "password": ""
-                                }
-                                """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").value("Validation failed"))
-                .andExpect(jsonPath("$.errors.password").value("Password is required"));
+        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha",
+                  "password": ""
+                }
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.password").value("Password is required"));
     }
 
     @Test
     void registerWithDuplicateUsernameReturnsConflict() throws Exception {
-        doThrow(new DuplicateUsernameException("talha"))
-                .when(authService)
-                .register(any());
+        doThrow(new DuplicateUsernameException("talha")).when(authService).register(any());
 
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {
-                              "username": "talha",
-                              "password": "secret123"
-                            }
-                            """))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.message").value("Username already exists: talha"));
+        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha",
+                  "password": "secret123"
+                }
+                """)).andExpect(status().isConflict()).andExpect(jsonPath("$.status").value(409)).andExpect(jsonPath("$.message").value("Username already exists: talha"));
     }
 
     @Test
     void loginWithInvalidCredentialsReturnsUnauthorized() throws Exception {
-        when(authService.login(any()))
-                .thenThrow(new InvalidCredentialsException());
+        when(authService.login(any())).thenThrow(new InvalidCredentialsException());
 
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {
-                              "username": "talha",
-                              "password": "wrong-password"
-                            }
-                            """))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.status").value(401))
-                .andExpect(jsonPath("$.message").value("Invalid username or password"));
+        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha",
+                  "password": "wrong-password"
+                }
+                """)).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.status").value(401)).andExpect(jsonPath("$.message").value("Invalid username or password"));
     }
 
     @Test
     void loginWithValidCredentialsReturnsToken() throws Exception {
-        when(authService.login(any()))
-                .thenReturn("jwt-token");
+        when(authService.login(any())).thenReturn("jwt-token");
 
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {
-                              "username": "talha",
-                              "password": "secret123"
-                            }
-                            """))
-                .andExpect(status().isOk())
-                .andExpect(content().string("jwt-token"));
+        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha",
+                  "password": "secret123"
+                }
+                """)).andExpect(status().isOk()).andExpect(content().string("jwt-token"));
+    }
+
+    @Test
+    void registerWithBlankPasswordReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha",
+                  "password": ""
+                }
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.password").value("Password is required"));
+
+        verify(authService, never()).register(any());
+    }
+
+    @Test
+    void loginWithBlankUsernameReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "",
+                  "password": "secret123"
+                }
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.username").value("Username is required"));
+
+        verify(authService, never()).login(any());
+    }
+
+    @Test
+    void registerWithInvalidJsonReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha",
+                  "password":
+                }
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Invalid request body or invalid field format"));
+
+        verify(authService, never()).register(any());
+    }
+
+    @Test
+    void registerWithShortPasswordReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha",
+                  "password": "123"
+                }
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.password").value("Password must be at least 6 characters"));
+
+        verify(authService, never()).register(any());
     }
 }

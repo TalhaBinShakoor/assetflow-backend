@@ -1,5 +1,6 @@
 package com.assetflow.backend.dto.auth;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,6 +8,9 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
 
+    @NotBlank(message = "Username is required")
     private String username;
+
+    @NotBlank(message = "Username is required")
     private String password;
 }

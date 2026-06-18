@@ -7,7 +7,7 @@ import com.assetflow.backend.model.Asset;
 
 public class AssetMapper {
 
-    // Request → Entity (CREATE)
+    // Request to entity for create
     public static Asset toEntity(AssetCreateRequest request) {
         Asset asset = new Asset();
 
@@ -19,7 +19,7 @@ public class AssetMapper {
         return asset;
     }
 
-    // Request → Entity (UPDATE)
+    // Request to entity for update
     public static void updateEntity(Asset asset, AssetUpdateRequest request) {
         asset.setName(request.getName());
         asset.setCategory(request.getCategory());
@@ -27,7 +27,7 @@ public class AssetMapper {
         asset.setPurchaseDate(request.getPurchaseDate());
     }
 
-    // Entity → Response (used everywhere)
+    // Entity to response
     public static AssetResponse toResponse(Asset asset) {
         return AssetResponse.builder()
                 .id(asset.getId())

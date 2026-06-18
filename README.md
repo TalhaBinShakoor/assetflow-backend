@@ -46,6 +46,24 @@ This project is part of my full-stack portfolio built with:
 - RESTful API
 - Dockerized PostgreSQL
 
+### Testing
+
+- Controller tests using MockMvc
+- Service unit tests using Mockito
+- Authentication and validation coverage
+- Asset ownership coverage
+- Role-based access control coverage
+- Unauthorized and forbidden access tests
+- 24 automated tests passing
+
+### Logging
+
+- Structured application logging using SLF4J
+- Successful registration and login events
+- Asset create, update, and delete events
+- Invalid JWT authentication warnings
+- Sensitive values such as passwords and JWT tokens are never logged
+
 
 ## Authentication & Security
 
@@ -68,13 +86,16 @@ Authorization: Bearer <JWT_TOKEN>
 - JWT expiration enabled (1 hour)
 - Protected API endpoints
 - Public endpoints: `/auth/**`, `/health`
+- Minimum password length validation during registration
+- Invalid JWT tokens return `401 Unauthorized`
+- Unauthorized ownership access returns `404 Not Found`
 
 ### Role-based Access Control (RBAC)
 
 This project supports two roles:
 
-- USER → can manage only their own assets
-- ADMIN → can view and manage all assets in the system
+- USER: can manage only their own assets
+- ADMIN: can view and manage all assets in the system
 
 Access control is enforced using Spring Security, JWT, and service-layer authorization checks.
 
@@ -154,7 +175,7 @@ or from IntelliJ by running:
 AssetflowBackendApplication
 ```
 
-### Test
+### Health Check
 
 ```
 GET http://localhost:8080/health
@@ -165,6 +186,19 @@ Expected response:
 ```
 AssetFlow backend is running
 ```
+
+### Run Automated Tests
+
+```bash
+mvn test
+```
+
+Current result:
+
+```text
+Tests run: 24, Failures: 0, Errors: 0, Skipped: 0
+```
+
 
 ---
 

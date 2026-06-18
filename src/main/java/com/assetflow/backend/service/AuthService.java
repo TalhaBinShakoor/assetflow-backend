@@ -2,15 +2,17 @@ package com.assetflow.backend.service;
 
 import com.assetflow.backend.dto.auth.LoginRequest;
 import com.assetflow.backend.dto.auth.RegisterRequest;
+import com.assetflow.backend.exception.DuplicateUsernameException;
 import com.assetflow.backend.exception.InvalidCredentialsException;
 import com.assetflow.backend.model.Role;
 import com.assetflow.backend.model.User;
 import com.assetflow.backend.repository.UserRepository;
 import com.assetflow.backend.security.JwtService;
-import com.assetflow.backend.exception.DuplicateUsernameException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -38,6 +40,8 @@ public class AuthService {
 
         // 2. Save to DB
         userRepository.save(user);
+
+        log.info("Registered user '{}'", user.getUsername());
     }
 
     public String login(LoginRequest request) {
@@ -53,6 +57,8 @@ public class AuthService {
         if (!passwordMatch) {
             throw new InvalidCredentialsException();
         }
+
+        log.info("User '{}' logged in successfully", user.getUsername());
 
         return jwtService.generateToken(user);
     }

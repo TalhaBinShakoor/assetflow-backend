@@ -1,23 +1,24 @@
 package com.assetflow.backend.service;
 
-import com.assetflow.backend.exception.UserNotFoundException;
 import com.assetflow.backend.dto.asset.AssetCreateRequest;
 import com.assetflow.backend.dto.asset.AssetResponse;
 import com.assetflow.backend.dto.asset.AssetUpdateRequest;
+import com.assetflow.backend.exception.AssetNotFoundException;
+import com.assetflow.backend.exception.UserNotFoundException;
 import com.assetflow.backend.mapper.AssetMapper;
 import com.assetflow.backend.model.Asset;
+import com.assetflow.backend.model.Role;
 import com.assetflow.backend.model.User;
 import com.assetflow.backend.repository.AssetRepository;
 import com.assetflow.backend.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-
-import com.assetflow.backend.exception.AssetNotFoundException;
-
 import java.util.List;
 
+@Slf4j
 @Service
 public class AssetService {
 
@@ -41,7 +42,7 @@ public class AssetService {
 
     private Asset getAccessibleAsset(Long id, User user) {
 
-        boolean isAdmin = user.getRole().name().equals("ADMIN");
+        boolean isAdmin = user.getRole() == Role.ADMIN;
 
         return assetRepository.findById(id)
                 .filter(asset -> isAdmin || asset.getUser().getId().equals(user.getId()))
@@ -89,6 +90,12 @@ public class AssetService {
 
         Asset savedAsset = assetRepository.save(asset);
 
+        log.info(
+                "Created asset id={} for user '{}'",
+                savedAsset.getId(),
+                user.getUsername()
+        );
+
         return AssetMapper.toResponse(savedAsset);
     }
 
@@ -102,6 +109,12 @@ public class AssetService {
 
         Asset updated = assetRepository.save(existing);
 
+        log.info(
+                "Updated asset id={} by user '{}'",
+                updated.getId(),
+                user.getUsername()
+        );
+
         return AssetMapper.toResponse(updated);
     }
 
@@ -112,5 +125,12 @@ public class AssetService {
         Asset existing = getAccessibleAsset(id, user);
 
         assetRepository.delete(existing);
+
+        log.info(
+                "Deleted asset id={} by user '{}'",
+                id,
+                user.getUsername()
+        );
+
     }
 }

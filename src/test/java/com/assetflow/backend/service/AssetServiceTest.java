@@ -1,6 +1,7 @@
 package com.assetflow.backend.service;
 
 import com.assetflow.backend.dto.asset.AssetResponse;
+import com.assetflow.backend.dto.asset.AdminAssetResponse;
 import com.assetflow.backend.exception.AssetNotFoundException;
 import com.assetflow.backend.model.Asset;
 import com.assetflow.backend.model.Role;
@@ -141,11 +142,13 @@ class AssetServiceTest {
 
         when(assetRepository.findAll()).thenReturn(List.of(laptop, monitor));
 
-        List<AssetResponse> assets = assetService.getAllAssetsForAdmin();
+        List<AdminAssetResponse> assets = assetService.getAllAssetsForAdmin();
 
         assertEquals(2, assets.size());
         assertEquals("Laptop", assets.get(0).getName());
         assertEquals("Monitor", assets.get(1).getName());
+        assertEquals("talha", assets.get(0).getOwnerUsername());
+        assertEquals("sara", assets.get(1).getOwnerUsername());
 
         verify(assetRepository).findAll();
     }

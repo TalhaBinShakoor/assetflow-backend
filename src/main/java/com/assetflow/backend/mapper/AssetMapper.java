@@ -3,6 +3,7 @@ package com.assetflow.backend.mapper;
 import com.assetflow.backend.dto.asset.AssetCreateRequest;
 import com.assetflow.backend.dto.asset.AssetResponse;
 import com.assetflow.backend.dto.asset.AssetUpdateRequest;
+import com.assetflow.backend.dto.asset.AdminAssetResponse;
 import com.assetflow.backend.model.Asset;
 
 public class AssetMapper {
@@ -35,6 +36,17 @@ public class AssetMapper {
                 .category(asset.getCategory())
                 .status(asset.getStatus())
                 .purchaseDate(asset.getPurchaseDate())
+                .build();
+    }
+
+    public static AdminAssetResponse toAdminResponse(Asset asset) {
+        return AdminAssetResponse.builder()
+                .id(asset.getId())
+                .name(asset.getName())
+                .category(asset.getCategory())
+                .status(asset.getStatus())
+                .purchaseDate(asset.getPurchaseDate())
+                .ownerUsername(asset.getUser().getUsername())
                 .build();
     }
 }

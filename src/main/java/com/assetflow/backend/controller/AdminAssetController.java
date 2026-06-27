@@ -1,6 +1,6 @@
 package com.assetflow.backend.controller;
 
-import com.assetflow.backend.dto.asset.AssetResponse;
+import com.assetflow.backend.dto.asset.AdminAssetResponse;
 import com.assetflow.backend.service.AssetService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class AdminAssetController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<AssetResponse> getAllAssetsForAdmin() {
+    public List<AdminAssetResponse> getAllAssetsForAdmin() {
         return assetService.getAllAssetsForAdmin();
     }
 }

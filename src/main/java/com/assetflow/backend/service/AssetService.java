@@ -3,6 +3,7 @@ package com.assetflow.backend.service;
 import com.assetflow.backend.dto.asset.AssetCreateRequest;
 import com.assetflow.backend.dto.asset.AssetResponse;
 import com.assetflow.backend.dto.asset.AssetUpdateRequest;
+import com.assetflow.backend.dto.asset.AdminAssetResponse;
 import com.assetflow.backend.exception.AssetNotFoundException;
 import com.assetflow.backend.exception.UserNotFoundException;
 import com.assetflow.backend.mapper.AssetMapper;
@@ -64,11 +65,11 @@ public class AssetService {
                 .toList();
     }
 
-    public List<AssetResponse> getAllAssetsForAdmin() {
+    public List<AdminAssetResponse> getAllAssetsForAdmin() {
 
         return assetRepository.findAll()
                 .stream()
-                .map(AssetMapper::toResponse)
+                .map(AssetMapper::toAdminResponse)
                 .toList();
     }
 

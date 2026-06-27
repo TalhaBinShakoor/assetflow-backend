@@ -1,6 +1,6 @@
 package com.assetflow.backend.controller;
 
-import com.assetflow.backend.dto.asset.AssetResponse;
+import com.assetflow.backend.dto.asset.AdminAssetResponse;
 import com.assetflow.backend.security.JwtService;
 import com.assetflow.backend.service.AssetService;
 import org.junit.jupiter.api.Test;
@@ -43,12 +43,13 @@ class AdminAssetControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void adminCanGetAllAssets() throws Exception {
-        AssetResponse laptop = AssetResponse.builder()
+        AdminAssetResponse laptop = AdminAssetResponse.builder()
                 .id(1L)
                 .name("Laptop")
                 .category("Electronics")
                 .status("ACTIVE")
                 .purchaseDate(LocalDate.of(2025, 1, 10))
+                .ownerUsername("talha")
                 .build();
 
         when(assetService.getAllAssetsForAdmin()).thenReturn(List.of(laptop));
@@ -56,7 +57,8 @@ class AdminAssetControllerTest {
         mockMvc.perform(get("/api/admin/assets"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Laptop"));
+                .andExpect(jsonPath("$[0].name").value("Laptop"))
+                .andExpect(jsonPath("$[0].ownerUsername").value("talha"));
 
         verify(assetService).getAllAssetsForAdmin();
     }

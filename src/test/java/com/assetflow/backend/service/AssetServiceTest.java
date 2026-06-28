@@ -1,5 +1,7 @@
 package com.assetflow.backend.service;
 
+import com.assetflow.backend.dto.asset.AssetUpdateRequest;
+import java.time.LocalDate;
 import com.assetflow.backend.dto.asset.AssetResponse;
 import com.assetflow.backend.dto.asset.AdminAssetResponse;
 import com.assetflow.backend.exception.AssetNotFoundException;
@@ -91,6 +93,40 @@ class AssetServiceTest {
         assertThrows(AssetNotFoundException.class, () -> assetService.getAssetById(10L));
     }
 
+    @Test
+    void updateAssetThrowsNotFoundWhenUserDoesNotOwnIt() {
+        setAuthenticatedUsername("talha");
+
+        User currentUser = user(1L, "talha", Role.USER);
+        User otherUser = user(2L, "sara", Role.USER);
+        Asset otherUsersAsset = asset(10L, "Monitor", otherUser);
+
+        AssetUpdateRequest request = new AssetUpdateRequest();
+        request.setName("Monitor Pro");
+        request.setCategory("Electronics");
+        request.setStatus("IN_REPAIR");
+        request.setPurchaseDate(LocalDate.of(2026, 6, 28));
+
+        when(userRepository.findByUsername("talha")).thenReturn(Optional.of(currentUser));
+        when(assetRepository.findById(10L)).thenReturn(Optional.of(otherUsersAsset));
+
+        assertThrows(AssetNotFoundException.class, () -> assetService.updateAsset(10L, request));
+    }
+
+    @Test
+    void deleteAssetThrowsNotFoundWhenUserDoesNotOwnIt() {
+        setAuthenticatedUsername("talha");
+
+        User currentUser = user(1L, "talha", Role.USER);
+        User otherUser = user(2L, "sara", Role.USER);
+        Asset otherUsersAsset = asset(10L, "Monitor", otherUser);
+
+        when(userRepository.findByUsername("talha")).thenReturn(Optional.of(currentUser));
+        when(assetRepository.findById(10L)).thenReturn(Optional.of(otherUsersAsset));
+
+        assertThrows(AssetNotFoundException.class, () -> assetService.deleteAsset(10L));
+    }
+
     private void setAuthenticatedUsername(String username) {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(username, null)
@@ -130,6 +166,50 @@ class AssetServiceTest {
 
         assertEquals(10L, response.getId());
         assertEquals("Monitor", response.getName());
+    }
+
+    @Test
+    void updateAssetAllowsAdminToUpdateAnyUsersAsset() {
+        setAuthenticatedUsername("admin");
+
+        User admin = user(1L, "admin", Role.ADMIN);
+        User owner = user(2L, "sara", Role.USER);
+        Asset otherUsersAsset = asset(10L, "Monitor", owner);
+
+        AssetUpdateRequest request = new AssetUpdateRequest();
+        request.setName("Monitor Pro");
+        request.setCategory("Electronics");
+        request.setStatus("IN_REPAIR");
+        request.setPurchaseDate(LocalDate.of(2026, 6, 28));
+
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
+        when(assetRepository.findById(10L)).thenReturn(Optional.of(otherUsersAsset));
+        when(assetRepository.save(otherUsersAsset)).thenReturn(otherUsersAsset);
+
+        AssetResponse response = assetService.updateAsset(10L, request);
+
+        assertEquals(10L, response.getId());
+        assertEquals("Monitor Pro", response.getName());
+        assertEquals("Electronics", response.getCategory());
+        assertEquals("IN_REPAIR", response.getStatus());
+
+        verify(assetRepository).save(otherUsersAsset);
+    }
+
+    @Test
+    void deleteAssetAllowsAdminToDeleteAnyUsersAsset() {
+        setAuthenticatedUsername("admin");
+
+        User admin = user(1L, "admin", Role.ADMIN);
+        User owner = user(2L, "sara", Role.USER);
+        Asset otherUsersAsset = asset(10L, "Monitor", owner);
+
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
+        when(assetRepository.findById(10L)).thenReturn(Optional.of(otherUsersAsset));
+
+        assetService.deleteAsset(10L);
+
+        verify(assetRepository).delete(otherUsersAsset);
     }
 
     @Test

@@ -163,6 +163,35 @@ git clone https://github.com/TalhaBinShakoor/assetflow-backend.git
 docker compose up -d
 ```
 
+### Backend Profiles And Environment Variables
+
+The backend uses Spring profiles for environment-specific configuration.
+
+Local development uses the default `local` profile:
+
+```bash
+mvn spring-boot:run
+```
+
+Production should run with the `prod` profile:
+
+```bash
+SPRING_PROFILES_ACTIVE=prod
+```
+
+Required production environment variables:
+
+```text
+DATABASE_URL=jdbc:postgresql://<host>:<port>/<database>
+DATABASE_USERNAME=<database-user>
+DATABASE_PASSWORD=<database-password>
+CORS_ALLOWED_ORIGIN=<deployed-frontend-origin>
+JWT_SECRET=<at-least-32-character-secret>
+PORT=<optional-platform-port>
+```
+
+The production profile intentionally does not provide fallback values for database, CORS, or JWT settings. Missing production configuration should fail early instead of accidentally using local development values.
+
 ### Run the application
 
 ```bash
@@ -196,7 +225,7 @@ mvn test
 Current result:
 
 ```text
-Tests run: 24, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 28, Failures: 0, Errors: 0, Skipped: 0
 ```
 
 

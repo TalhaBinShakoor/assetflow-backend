@@ -192,6 +192,22 @@ PORT=<optional-platform-port>
 
 The production profile intentionally does not provide fallback values for database, CORS, or JWT settings. Missing production configuration should fail early instead of accidentally using local development values.
 
+### Build And Run With Docker
+
+Build the backend image:
+
+```bash
+docker build -t assetflow-backend .
+```
+
+Run the backend container locally with the production profile:
+
+```bash
+docker run --rm --name assetflow-backend -p 8081:8080 -e SPRING_PROFILES_ACTIVE=prod -e DATABASE_URL=jdbc:postgresql://host.docker.internal:5432/assetflow -e DATABASE_USERNAME=assetflow -e DATABASE_PASSWORD=assetflow -e CORS_ALLOWED_ORIGIN=http://localhost:4200 -e JWT_SECRET=<local-test-jwt-secret-at-least-32-characters> assetflow-backend
+```
+
+The local Docker test maps `localhost:8081` on the host machine to port `8080` inside the container. In a deployed environment, the platform should provide the production database URL, frontend CORS origin, JWT secret, and optional port through environment variables.
+
 ### Run the application
 
 ```bash

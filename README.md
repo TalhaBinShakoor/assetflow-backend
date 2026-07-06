@@ -7,6 +7,7 @@ AssetFlow Backend is a Spring Boot REST API for managing company assets with sec
 - Health check: https://assetflow-backend-ye6o.onrender.com/health
 - Frontend: https://assetflow-frontend-iota.vercel.app
 - Frontend repository: https://github.com/TalhaBinShakoor/assetflow-frontend
+- Full-stack demo videos: https://github.com/TalhaBinShakoor/assetflow-frontend/releases/tag/demo-v1
 
 This project is part of my full-stack portfolio built with:
 

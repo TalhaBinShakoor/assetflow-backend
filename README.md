@@ -2,6 +2,12 @@
 
 AssetFlow Backend is a Spring Boot REST API for managing company assets with secure JWT-based authentication. The project follows production-style layered architecture and REST API best practices.
 
+## Live Backend
+
+- Health check: https://assetflow-backend-ye6o.onrender.com/health
+- Frontend: https://assetflow-frontend-iota.vercel.app
+- Frontend repository: https://github.com/TalhaBinShakoor/assetflow-frontend
+
 This project is part of my full-stack portfolio built with:
 
 - Java 25
@@ -54,7 +60,7 @@ This project is part of my full-stack portfolio built with:
 - Asset ownership coverage
 - Role-based access control coverage
 - Unauthorized and forbidden access tests
-- 24 automated tests passing
+- 28 automated tests passing
 
 ### Logging
 
@@ -191,6 +197,8 @@ PORT=<optional-platform-port>
 ```
 
 The production profile intentionally does not provide fallback values for database, CORS, or JWT settings. Missing production configuration should fail early instead of accidentally using local development values.
+
+In the deployed portfolio environment, Render provides the backend runtime and environment variables, while Neon provides the PostgreSQL database. Real production credentials and JWT secrets are stored in the hosting platform settings and are not committed to the repository.
 
 ### Build And Run With Docker
 

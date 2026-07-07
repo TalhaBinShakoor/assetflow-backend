@@ -102,6 +102,30 @@ class AuthControllerTest {
     }
 
     @Test
+    void registerWithShortUsernameReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "ab",
+                  "password": "secret123"
+                }
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.username").value("Username must be between 3 and 40 characters"));
+
+        verify(authService, never()).register(any());
+    }
+
+    @Test
+    void registerWithInvalidUsernameCharactersReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha!",
+                  "password": "secret123"
+                }
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.username").value("Username can only contain letters, numbers, underscores, and hyphens"));
+
+        verify(authService, never()).register(any());
+    }
+
+    @Test
     void loginWithBlankUsernameReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
                 {
@@ -132,8 +156,44 @@ class AuthControllerTest {
                   "username": "talha",
                   "password": "123"
                 }
-                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.password").value("Password must be at least 6 characters"));
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.password").value("Password must be between 6 and 72 characters"));
 
         verify(authService, never()).register(any());
+    }
+
+    @Test
+    void registerWithTooLongPasswordReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha",
+                  "password": "%s"
+                }
+                """.formatted("a".repeat(73)))).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.password").value("Password must be between 6 and 72 characters"));
+
+        verify(authService, never()).register(any());
+    }
+
+    @Test
+    void loginWithTooLongUsernameReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "%s",
+                  "password": "secret123"
+                }
+                """.formatted("a".repeat(41)))).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.username").value("Username must be between 3 and 40 characters"));
+
+        verify(authService, never()).login(any());
+    }
+
+    @Test
+    void loginWithShortPasswordReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "username": "talha",
+                  "password": "123"
+                }
+                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Validation failed")).andExpect(jsonPath("$.errors.password").value("Password must be between 6 and 72 characters"));
+
+        verify(authService, never()).login(any());
     }
 }
